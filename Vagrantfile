@@ -5,8 +5,8 @@ ENV["LC_ALL"] = "en_US.UTF-8"
 
 MACHINES = {
   :lvm => {
-        :box_name => "centos/7",
-        :box_version => "1804.02",
+        :box_name => "centos_7",
+#        :box_version => "1804.02",
         :ip_addr => '192.168.11.101',
     :disks => {
         :sata1 => {
@@ -35,7 +35,7 @@ MACHINES = {
 
 Vagrant.configure("2") do |config|
 
-    config.vm.box_version = "1804.02"
+#    config.vm.box_version = "1804.02"
     MACHINES.each do |boxname, boxconfig|
   
         config.vm.define boxname do |box|
@@ -43,8 +43,7 @@ Vagrant.configure("2") do |config|
             box.vm.box = boxconfig[:box_name]
             box.vm.host_name = boxname.to_s
   
-            #box.vm.network "forwarded_port", guest: 3260, host: 3260+offset
-  
+#            box.vm.network "forwarded_port", guest: 3260, host: 3260
             box.vm.network "private_network", ip: boxconfig[:ip_addr]
   
             box.vm.provider :virtualbox do |vb|
@@ -68,10 +67,19 @@ Vagrant.configure("2") do |config|
         box.vm.provision "shell", inline: <<-SHELL
             mkdir -p ~root/.ssh
             cp ~vagrant/.ssh/auth* ~root/.ssh
-            yum install -y mdadm smartmontools hdparm gdisk xfsdump
+            #Уже установленно в образе centos/7
+            #yum install -y mdadm smartmontools hdparm 
+            
+            #Если надо устанавливаем другие пакеты
+            #yum install -y gdisk xfsdump
+
+            cd ~
+            cp /vagrant/*.sh .
+            ./task_02.sh > /vagrant/task_02.log 2>&1
+            ./task_03.sh > /vagrant/task_03.log 2>&1
           SHELL
 
-        box.vm.provision "shell", path: "reduce_root.sh"
+        #box.vm.provision "shell", path: "reduce_root.sh"
   
         end
     end
